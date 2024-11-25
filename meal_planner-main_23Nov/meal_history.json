@@ -1,0 +1,84 @@
+{
+    "1": {
+        "2024-11-23": {
+            "meals": {
+                "dinner": {
+                    "recipe_name": "Kabuli Pulao",
+                    "calories": 717.0,
+                    "time_selected": "21:44:34",
+                    "recipe_id": 0
+                },
+                "lunch": {
+                    "recipe_name": "Chicken Yakhni Pulao",
+                    "calories": 861.0,
+                    "time_selected": "21:44:54",
+                    "recipe_id": 0
+                },
+                "breakfast": {
+                    "recipe_name": "Spicy Potato Pancake",
+                    "calories": 170.0,
+                    "time_selected": "21:45:29",
+                    "recipe_id": 0
+                },
+                "snack": {
+                    "recipe_name": "Dal Poori ",
+                    "calories": 242.0,
+                    "time_selected": "21:53:58",
+                    "recipe_id": 366
+                }
+            },
+            "total_calories": 1990.0,
+            "remaining_calories": 10.0
+        },
+        "2024-11-24": {
+            "meals": {
+                "breakfast": {
+                    "recipe_name": "Chicken Nihari",
+                    "calories": 633.0,
+                    "time_selected": "15:02:56",
+                    "recipe_id": 4128
+                },
+                "lunch": {
+                    "recipe_name": "Chicken Khichuri",
+                    "calories": 860.0,
+                    "time_selected": "15:03:07",
+                    "recipe_id": 4176
+                },
+                "dinner": {
+                    "recipe_name": "Vuna Khichuri",
+                    "calories": 721.0,
+                    "time_selected": "15:03:11",
+                    "recipe_id": 4009
+                },
+                "snack": {
+                    "recipe_name": "Dal Poori ",
+                    "calories": 242.0,
+                    "time_selected": "15:03:14",
+                    "recipe_id": 4026
+                }
+            },
+            "total_calories": 2456.0,
+            "remaining_calories": -456.0
+        }
+    },
+    "3": {
+        "2024-11-23": {
+            "meals": {
+                "snack": {
+                    "recipe_name": "Jhura Nimki",
+                    "calories": 235.0,
+                    "time_selected": "22:19:00",
+                    "recipe_id": 2895
+                },
+                "dinner": {
+                    "recipe_name": "Pur Bhora Kakrol",
+                    "calories": 688.0,
+                    "time_selected": "22:19:07",
+                    "recipe_id": 2774
+                }
+            },
+            "total_calories": 923.0,
+            "remaining_calories": 1077.0
+        }
+    }
+}

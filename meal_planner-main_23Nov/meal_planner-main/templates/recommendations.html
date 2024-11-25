@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Recommendations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
+</head>
+<body class="bg-gray-50">
+    {% include 'header.html' %}
+
+    <main>
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- BMI and Nutritional Summary -->
+            <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- BMI Card -->
+                <div class="bg-white rounded-xl shadow-lg p-6 animate__animated animate__fadeInLeft">
+                    <h3 class="text-2xl font-bold mb-4">BMI Status</h3>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-4xl font-bold text-green-600">{{ "%.3f"|format(diet_data.bmi.value) }}</p>
+                            <p class="text-gray-600">Category: {{ diet_data.bmi.category }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-bold">Daily Calories</p>
+                            <p class="text-2xl text-green-600" id="totalCalories">{{ diet_data.calories.total }} kcal</p>
+                            <!-- <p class="text-lg text-orange-500" id="remainingCalories">Remaining: {{ diet_data.calories.total }} kcal</p> -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nutritional Values Card -->
+                <div class="bg-white rounded-xl shadow-lg p-6 animate__animated animate__fadeInRight">
+                    <h3 class="text-2xl font-bold mb-4">Daily Nutritional Targets</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        {% for nutrient, value in diet_data.nutritional_values.items() %}
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-gray-600">{{ nutrient }}</p>
+                            <p class="text-2xl font-bold text-green-600">{{ value }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Meals Summary -->
+            <div class="mb-8 bg-white rounded-xl shadow-lg p-6 animate__animated animate__fadeInUp">
+                <h3 class="text-2xl font-bold mb-4">Selected Meals</h3>
+                <div id="selectedMeals" class="space-y-2">
+                    <!-- Selected meals will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Meal Plans -->
+            <div class="space-y-8">
+                {% for meal_type, recipes in diet_data.meals.items() %}
+                <div class="animate__animated animate__fadeInUp">
+                    <h2 class="text-2xl font-bold mb-4 capitalize">{{ meal_type }} ({{ diet_data.calories[meal_type] }} kcal)</h2>
+                    {% if recipes %}
+                    <button onclick="showDifferentMeals('{{ meal_type }}')"
+                            class="mb-4 inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 px-5 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-md hover:shadow-lg">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh Meal Options</span>
+                    </button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="meals-container-{{ meal_type }}">
+                        {% for recipe in recipes %}
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+                            {% if recipe.image %}
+                            <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="w-full h-48 object-cover">
+                            {% else %}
+                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-400">No image available</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold mb-3">{{ recipe.name }}</h3>
+                                
+                                <!-- Nutritional Info -->
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Calories:</span>
+                                        <span class="font-semibold">{{ recipe.energy_per_serving_kcal }} kcal</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Protein:</span>
+                                        <span class="font-semibold">{{ recipe.protein_per_serving_g }}g</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Carbs:</span>
+                                        <span class="font-semibold">{{ recipe.carbohydrate_per_serving_g }}g</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Fat:</span>
+                                        <span class="font-semibold">{{ recipe.fat_per_serving_g }}g</span>
+                                    </div>
+                                </div>
+
+                                <!-- Add Select Button -->
+                                <button onclick="selectMeal('{{ recipe.name }}', {{ recipe.energy_per_serving_kcal }}, '{{ meal_type }}')"
+                                        class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors mb-4">
+                                    Select Meal
+                                </button>
+
+                                <!-- Ingredients and Instructions Collapse -->
+                                <div class="space-y-2">
+                                    <!-- Ingredients Collapse -->
+                                    <div class="mb-2">
+                                        <button onclick="toggleSection('ingredients-{{ loop.index }}')" 
+                                                class="text-green-600 hover:text-green-700 text-sm font-semibold flex items-center">
+                                            <span class="mr-1">Show Ingredients</span>
+                                            <i class="fas fa-chevron-down text-xs transition-transform" id="ingredients-icon-{{ loop.index }}"></i>
+                                        </button>
+                                        <div id="ingredients-{{ loop.index }}" class="hidden mt-2 text-sm text-gray-600 pl-2 border-l-2 border-green-200">
+                                            {{ recipe.ingredients }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Instructions Collapse -->
+                                    <div class="mb-4">
+                                        <button onclick="toggleSection('instructions-{{ loop.index }}')" 
+                                                class="text-green-600 hover:text-green-700 text-sm font-semibold flex items-center">
+                                            <span class="mr-1">Show Instructions</span>
+                                            <i class="fas fa-chevron-down text-xs transition-transform" id="instructions-icon-{{ loop.index }}"></i>
+                                        </button>
+                                        <div id="instructions-{{ loop.index }}" class="hidden mt-2 text-sm text-gray-600 pl-2 border-l-2 border-green-200">
+                                            {{ recipe.instructions }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-sm text-gray-600 mb-4">
+                                    <span class="font-semibold">Serving Size:</span> {{ recipe.serving_size }} portions
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-600 italic">No recipes available for {{ meal_type }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+
+    <!-- JavaScript for functionality -->
+    <script>
+    let selectedMeals = [];
+    const totalDailyCalories = {{ diet_data.calories.total }};
+    let remainingCalories = totalDailyCalories;
+
+    function updateCalorieDisplay() {
+        document.getElementById('remainingCalories').textContent = `Remaining: ${Math.round(remainingCalories)} kcal`;
+        
+        // Update color based on remaining calories
+        const remainingElement = document.getElementById('remainingCalories');
+        if (remainingCalories < 0) {
+            remainingElement.classList.remove('text-orange-500');
+            remainingElement.classList.add('text-red-500');
+        } else {
+            remainingElement.classList.remove('text-red-500');
+            remainingElement.classList.add('text-orange-500');
+        }
+    }
+
+    function selectMeal(recipeName, calories, mealType) {
+        // Normalize meal type
+        const normalizedMealType = mealType.toLowerCase() === 'snacks' ? 'snack' : mealType.toLowerCase();
+        
+        fetch('/select_meal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                recipe_name: recipeName,
+                calories: calories,
+                meal_type: normalizedMealType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully selected ${recipeName} for ${normalizedMealType}`);
+                window.location.href = '/dashboard';
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error selecting meal');
+        });
+    }
+
+    function updateAvailableMealTypes(remainingTypes) {
+        // Hide meal sections that are no longer available
+        document.querySelectorAll('.meal-section').forEach(section => {
+            const mealType = section.getAttribute('data-meal-type');
+            if (!remainingTypes.includes(mealType)) {
+                section.style.display = 'none';
+            }
+        });
+    }
+
+    function toggleSection(id) {
+        const element = document.getElementById(id);
+        const iconId = id.replace('ingredients', 'ingredients-icon').replace('instructions', 'instructions-icon');
+        const icon = document.getElementById(iconId);
+        
+        if (element.classList.contains('hidden')) {
+            element.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            element.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    function showDifferentMeals(mealType) {
+        const container = document.getElementById(`meals-container-${mealType}`);
+        if (!container) {
+            console.error('Container not found for meal type:', mealType);
+            return;
+        }
+        
+        container.innerHTML = '<div class="col-span-full text-center">Loading new meals...</div>';
+
+        fetch(`/get_different_meals/${mealType}`)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Failed to load meals');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Received data:', data); // Debug log
+                
+                if (data.success && data.meals && data.meals.length > 0) {
+                    container.innerHTML = data.meals.map(recipe => `
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300">
+                            ${recipe.image ? 
+                                `<img src="${recipe.image}" alt="${recipe.name}" class="w-full h-48 object-cover">` :
+                                `<div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                    <span class="text-gray-400">No image available</span>
+                                </div>`
+                            }
+                            
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold mb-3">${recipe.name}</h3>
+                                
+                                <div class="space-y-2 mb-4">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Calories:</span>
+                                        <span class="font-semibold">${recipe.energy_per_serving_kcal} kcal</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Protein:</span>
+                                        <span class="font-semibold">${recipe.protein_per_serving_g}g</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Carbs:</span>
+                                        <span class="font-semibold">${recipe.carbohydrate_per_serving_g}g</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Fat:</span>
+                                        <span class="font-semibold">${recipe.fat_per_serving_g}g</span>
+                                    </div>
+                                </div>
+
+                                <button onclick="selectMeal('${recipe.name}', ${recipe.energy_per_serving_kcal}, '${mealType}', ${recipe.id})"
+                                        class="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors mb-4">
+                                    Select Meal
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="col-span-full text-center text-red-500">No meals available for your preferences</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = `<div class="col-span-full text-center text-red-500">Error: ${error.message}</div>`;
+            });
+    }
+
+    // Add this for debugging
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('JavaScript loaded');
+        // Log all meal type containers
+        document.querySelectorAll('[id^="meals-container-"]').forEach(container => {
+            console.log('Found container:', container.id);
+        });
+    });
+    </script>
+
+    <style>
+    .animate__animated {
+        animation-duration: 1s;
+    }
+
+    .animate__fadeInLeft {
+        animation-name: fadeInLeft;
+    }
+
+    .animate__fadeInRight {
+        animation-name: fadeInRight;
+    }
+
+    .animate__fadeInUp {
+        animation-name: fadeInUp;
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translate3d(-100%, 0, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translate3d(100%, 0, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .fa-chevron-down {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .border-l-2 {
+        transition: all 0.3s ease-in-out;
+    }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+</body>
+</html>
