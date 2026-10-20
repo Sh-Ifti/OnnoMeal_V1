@@ -1,8 +1,10 @@
-# OnnoMeal: Personalized Meal Recommendations for Bangladesh
+# OnnoMeal (V1): Early Prototype of OnnoMitro
+
+> **This is an early prototype.** The final version of this project is **[OnnoMitro](https://github.com/Sh-Ifti/onnomitro-meal-recommender)**, our CSE 499 senior design project at North South University.
 
 A web app that builds **personalized daily meal plans from traditional Bangladeshi food**. It estimates each user's nutritional needs from their body measurements, activity level and goal, then recommends recipes from a curated database of **305 Bangladeshi dishes** that best match those targets.
 
-Senior Design Project (CSE 499), North South University · 2024 · *This repository is the first working version (V1).*
+Early prototype of the CSE 499 Senior Design Project, North South University · 2024. Shahariar Ifti, Tasin Tayeba Khan, Moshiur Rahman · Supervised by Dr. Sifat Momen
 
 ## Why
 Most diet and meal-planning apps are built around Western foods, portion sizes and ingredients that are unfamiliar or hard to find in Bangladesh. OnnoMeal ("onno" means rice/food in Bangla) starts from what people here actually cook and eat: biryani, bhuna, bhorta, dal, pitha.
@@ -64,8 +66,8 @@ Then open http://127.0.0.1:5000. Database credentials are set in `app.py` (`SQLA
 
 > V1 is a demo for local use. Before any public deployment it needs a real secret key from an environment variable, hashed passwords on every login path, and the default admin account removed.
 
-## Author
-**Shahariar Ifti** · [GitHub](https://github.com/Sh-Ifti) · [ORCID](https://orcid.org/0009-0005-1092-2599)
+## Team
+Shahariar Ifti · Tasin Tayeba Khan · Moshiur Rahman · Supervised by Dr. Sifat Momen
 
 ## License
 Code is released under the MIT License (see `LICENSE`). Recipe images link to their original sources.
